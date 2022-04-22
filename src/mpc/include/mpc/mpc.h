@@ -17,6 +17,8 @@
 #include <tf/LinearMath/Scalar.h>
 #include <autoware_msgs/VehicleCmd.h>
 #include <geometry_msgs/Twist.h>
+#include <geometry_msgs/Point.h>
+#include <nav_msgs/Path.h>
 
 #include "Eigen-3.3/Eigen/Core"
 #include "Eigen-3.3/Eigen/QR"
@@ -141,29 +143,38 @@ class Car:public MPC{
         //Constructor of Car class
         Car (int argc , char **argv);
 
-
+        void waypointCallback(const nav_msgs::PathConstPtr& waypointMsg);
+        
         void odomCallback(const nav_msgs::Odometry::ConstPtr& odomMsg);
+        
         void imuCallback(const sensor_msgs::Imu& imuMsg);
+        
         void canBusCallback(const lgsvl_msgs::CanBusData& CanMsg);
 
         
         void sendCommandToSim(float steer, float vel);
 
+        float clip(float n, float lower, float upper);
+        
         Eigen::VectorXd polyfit(Eigen::VectorXd xvals, Eigen::VectorXd yvals,int order);
+        
         float polyeval(Eigen::VectorXd coeffs, float x); 
-        void modelPredictiveController();
+        
+        void modelPredictiveController(const std::vector<geometry_msgs::Point> &t_path);
         
 };
 
 class FG_eval : public MPC{
- public:
-  
-  // Fitted polynomial coefficients
-  Eigen::VectorXd coeffs;
-  FG_eval(Eigen::VectorXd coeffs) { this->coeffs = coeffs;}
+    public:
+    
+        // Fitted polynomial coefficients
+        Eigen::VectorXd coeffs;
+        
+        FG_eval(Eigen::VectorXd coeffs) { this->coeffs = coeffs;}
 
-  typedef CPPAD_TESTVECTOR(AD<double>) ADvector;
-  void operator()(ADvector& fg, const ADvector& vars);
+        typedef CPPAD_TESTVECTOR(AD<double>) ADvector;
+        
+        void operator()(ADvector& fg, const ADvector& vars);
 
 
 };
