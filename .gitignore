@@ -4,8 +4,4 @@ build/
 *.pyc
 .catkin_workspace
 .vscode
-<<<<<<< HEAD
 *.bag
-=======
-*.bag
->>>>>>> 84d3815604ea7d645226ad5387f6710655ca6d61
